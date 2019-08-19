@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText consulta2;
     private EditText consulta3;
     private EditText consulta4;
+    private String codigo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +31,7 @@ public class MainActivity extends AppCompatActivity {
         consulta4= (EditText)findViewById(R.id.editText4);
     }
 
-    public void mostrarResultados(View view)
-    {
-        //String[] resultadoSQL = null;
+    public void mostrarResultados(View view){
         try {
             String driver = "com.mysql.jdbc.Driver";
             Class.forName(driver).newInstance();
@@ -46,7 +45,8 @@ public class MainActivity extends AppCompatActivity {
                     consulta1.getText().toString(),
                     consulta2.getText().toString(),
                     consulta3.getText().toString(),
-                    consulta4.getText().toString()
+                    consulta4.getText().toString(),
+                    codigo="1"
             };
 
             if(consulta1.getText().toString().equals("")|| consulta2.getText().toString().equals("")){
@@ -61,12 +61,42 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
+        }catch(Exception ex)
+        {
+            Toast.makeText(this, "Error: "
+                    + ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
 
 
-            //String resultadoConsulta = resultadoSQL[0];
-            //String numFilas = resultadoSQL[1];
-            //String numColumnas = resultadoSQL[2];
-            //consulta.setText(resultadoConsulta + "\nNúmero de filas devueltas: " + numFilas + "\nNúmero de columnas devueltas: " + numColumnas);
+    public void Consulta(View view){
+        String[] resultadoSQL = null;
+        try {
+            String driver = "com.mysql.jdbc.Driver";
+            Class.forName(driver).newInstance();
+            datosConexion = new String[]{
+                    serverIP,
+                    port,
+                    database,
+                    userMySQL,
+                    pwdMySQL,
+                    consulta1.getText().toString(),
+                    consulta2.getText().toString(),
+                    consulta3.getText().toString(),
+                    consulta4.getText().toString(),
+                    codigo="2"
+            };
+
+            if(consulta1.getText().toString().equals("")){
+                Toast.makeText(this, "Debe indicar el dato.", Toast.LENGTH_LONG).show();
+            }else{
+
+                resultadoSQL = new AsyncQuery().execute(datosConexion).get();
+                Toast.makeText(MainActivity.this,"Conexión Establecida", Toast.LENGTH_LONG).show();
+                consulta2.setText(resultadoSQL[2]);
+                consulta3.setText(resultadoSQL[3]);
+                consulta4.setText(resultadoSQL[4]);
+            }
 
 
         }catch(Exception ex)
@@ -75,4 +105,6 @@ public class MainActivity extends AppCompatActivity {
                     + ex.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
+
 }

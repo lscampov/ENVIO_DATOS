@@ -15,22 +15,23 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-public class AsyncQuery extends AsyncTask<String[],Void,Void> {
+public class AsyncQuery extends AsyncTask<String[],Void,String[]> {
 
     private Connection conexionMySQL=null;
     private Statement st = null;
-    //private ResultSet rs = null;
+    private ResultSet rs = null;
 
     @Override
-    protected Void doInBackground(String[]... datos) {
+    protected String[] doInBackground(String[]... datos) {
         String descripcion = datos[0][5];
         String precio = datos[0][6];
         String cantidad = datos[0][7];
         String id_factura = datos[0][8];
-        //String resultadoSQL = "";
-        //String[] totalResultadoSQL = null;
-        //int numColumnas = 0;
-        //int numFilas = 0;
+        String codigo=datos[0][9];
+        String resultadoSQL = "";
+        String[] totalResultadoSQL = null;
+        int numColumnas = 0;
+        int numFilas = 0;
         String SERVIDOR = datos[0][0];
         String PUERTO = datos[0][1];
         String BD = datos[0][2];
@@ -43,36 +44,33 @@ public class AsyncQuery extends AsyncTask<String[],Void,Void> {
 
             st = conexionMySQL.createStatement();
 
-            //st.executeUpdate("INSERT INTO `Tab` (nombre, descripcion) VALUES ('"+descripcion+"','"+precio+"')");
-            String q = "INSERT INTO Lote (descripcion, precio_unitario, cantidad, id_factura) VALUES " +
-                    "('" + descripcion + "','" + precio + "','" + cantidad + "','" + id_factura + "')";
-            Log.d("Query: ",q);
-            st.executeUpdate(q);
+            if(codigo.equals("1")){
 
-            /*rs.last();
-            numFilas = rs.getRow();
-            if(numFilas == 0)
-            {
-                resultadoSQL = "No se ha producido ningún resultado. Revise la consulta realizada.\n";
-            }else
-            {
-                for(int i=1;i<=numColumnas;i++){
-                    if(i>1) resultadoSQL += ",";
-                    resultadoSQL += rs.getMetaData().getColumnName(i);
-                }
-                resultadoSQL += "\n";
-                rs.beforeFirst();
-                while (rs.next())
+                String q = "INSERT INTO Lote (descripcion, precio_unitario, cantidad, id_factura) VALUES " +
+                        "('" + descripcion + "','" + precio + "','" + cantidad + "','" + id_factura + "')";
+                Log.d("Query: ",q);
+                st.executeUpdate(q);
+
+            }else{
+                rs = st.executeQuery("SELECT '"+precio+"','"+cantidad+"','"+id_factura+"' FROM Lote WHERE descripcion LIKE '"+descripcion+"';");
+                rs.last();
+                numFilas = rs.getRow();
+                if(numFilas == 0)
                 {
-                    numColumnas = rs.getMetaData().getColumnCount();
-                    for(int i=1;i<=numColumnas;i++){
-                        if(i>1) resultadoSQL += ",";
-                        resultadoSQL += rs.getString(i);
+                    resultadoSQL = "No se ha producido ningún resultado. Revise la consulta realizada.\n";
+                }else
+                {
+                    rs.beforeFirst();
+                    while (rs.next())
+                    {
+                        numColumnas = rs.getMetaData().getColumnCount();
+                        for(int i=1;i<=numColumnas;i++){
+                            totalResultadoSQL[i]= rs.getString(i);
+                        }
                     }
-                    resultadoSQL += "\n";
                 }
             }
-            totalResultadoSQL = new String[]{ resultadoSQL,String.valueOf(numFilas),String.valueOf(numColumnas)};*/
+
 
         }catch(SQLException ex)
         {
@@ -82,10 +80,10 @@ public class AsyncQuery extends AsyncTask<String[],Void,Void> {
         {
             try
             {
-                 /*if(rs != null)
-                  {
-                      rs.close();
-                  }*/
+                if(rs != null)
+                {
+                    rs.close();
+                }
                 st.close();
                 conexionMySQL.close();
             } catch (SQLException e)
@@ -93,7 +91,7 @@ public class AsyncQuery extends AsyncTask<String[],Void,Void> {
                 e.printStackTrace();
             }
         }
-        return null;
+        return totalResultadoSQL;
     }
 
 }
