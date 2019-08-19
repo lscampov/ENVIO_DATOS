@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     public void mostrarResultados(View view)
     {
         //String[] resultadoSQL = null;
-        try{
+        try {
             String driver = "com.mysql.jdbc.Driver";
             Class.forName(driver).newInstance();
 
@@ -49,9 +49,19 @@ public class MainActivity extends AppCompatActivity {
                     consulta4.getText().toString()
             };
 
+            if(consulta1.getText().toString().equals("")|| consulta2.getText().toString().equals("")){
+                Toast.makeText(this, "Debe indicar todos los datos.", Toast.LENGTH_LONG).show();
+            }else{
+                new AsyncQuery().execute(datosConexion);
+                consulta1.setText("");
+                consulta2.setText("");
+                consulta3.setText("");
+                consulta4.setText("");
+                Toast.makeText(MainActivity.this,"Conexión Establecida", Toast.LENGTH_LONG).show();
+            }
 
-            new AsyncQuery().execute(datosConexion);
-            Toast.makeText(MainActivity.this,"Conexión Establecida", Toast.LENGTH_LONG).show();
+
+
 
             //String resultadoConsulta = resultadoSQL[0];
             //String numFilas = resultadoSQL[1];
